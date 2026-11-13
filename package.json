@@ -1,3 +1,4 @@
+  GNU nano 8.7.1                                                package.json
 {
   "name": "red-platform",
   "version": "1.0.0",
@@ -15,3 +16,7 @@
     "multer": "^2.5.0"
   }
 }
+
+
+
+
