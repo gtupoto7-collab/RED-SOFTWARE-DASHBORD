@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RED SOFTWARE TEAM // ULTIMATE SECURE PLATFORM</title>
+    <style>
+        :root {
+            --bg-color: #030000;
+            --panel-bg: rgba(10, 1, 1, 0.92);
+            --border-red: #ff0033;
+            --text-red: #ff1a40;
+            --glow-red: rgba(255, 0, 51, 0.45);
+            --text-light: #ffffff;
+            --text-gray: #b0b0b0;
+            --terminal-bg: #050001;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
+        body { background-color: var(--bg-color); color: var(--text-light); min-height: 100vh; overflow-x: hidden; position: relative; }
+
+        #cyberCanvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; pointer-events: none; opacity: 0.35;
+        }
+
+        nav {
+            background: rgba(8, 0, 0, 0.95); border-bottom: 2px solid var(--border-red);
+            padding: 12px 20px; display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 1000; box-shadow: 0 0 20px var(--glow-red);
+            flex-wrap: wrap; gap: 10px; backdrop-filter: blur(5px);
+        }
+        .nav-brand { font-size: 0.85rem; font-weight: bold; color: var(--text-red); text-shadow: 0 0 8px var(--glow-red); }
+        .nav-links { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+        .nav-btn {
+            background: #150003; border: 1px solid var(--border-red); color: var(--text-light);
+            padding: 6px 10px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 0.7rem; transition: 0.2s;
+        }
+        .nav-btn:hover, .nav-btn.active { background: var(--border-red); box-shadow: 0 0 12px var(--glow-red); }
+
+        .container { max-width: 1300px; margin: 20px auto; padding: 0 15px; }
+        .section { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+
+        .scroll-zoom-card {
+            background: var(--panel-bg); border: 2px solid var(--border-red);
+            padding: 20px; margin-bottom: 20px; box-shadow: 0 0 15px rgba(255, 0, 51, 0.15);
+            transform: scale(0.88); opacity: 0.3; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease-in-out;
+        }
+        .scroll-zoom-card.visible { transform: scale(1); opacity: 1; }
+
+        .cyber-card h2, .cyber-card h3, .scroll-zoom-card h2, .scroll-zoom-card h3 { color: var(--text-red); margin-bottom: 12px; text-transform: uppercase; font-size: 1.1rem; }
+
+        input, textarea, select {
+            width: 100%; background: #120002; border: 1px solid var(--border-red);
+            color: #fff; padding: 10px; margin-bottom: 12px; font-size: 0.9rem;
+        }
+        input:focus, textarea:focus { outline: none; box-shadow: 0 0 10px var(--glow-red); }
+
+        .btn-red {
+            background: var(--border-red); color: white; border: none; padding: 10px 20px;
+            font-weight: bold; cursor: pointer; text-transform: uppercase; width: 100%; letter-spacing: 1px; transition: 0.3s; font-size: 0.85rem;
+        }
+        .btn-red:hover { background: #ff1a40; box-shadow: 0 0 15px var(--glow-red); }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px; }
+        @media (max-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr; }
+            nav { padding: 10px; justify-content: center; }
+            .nav-links { justify-content: center; width: 100%; }
+        }
+
+        .terminal-box {
+            background: var(--terminal-bg); border: 1px dashed var(--border-red);
+            padding: 12px; font-size: 0.75rem; color: #00ff66; max-height: 180px; overflow-y: auto; margin-top: 10px; word-break: break-all;
+        }
+
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(3,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; padding: 10px;
+        }
+        .modal-content {
+            background: var(--panel-bg); border: 2px solid var(--border-red);
+            padding: 20px; width: 100%; max-width: 550px; box-shadow: 0 0 25px var(--glow-red); position: relative;
+            max-height: 90vh; overflow-y: auto;
+        }
+        .close-modal { position: absolute; top: 10px; right: 10px; background: transparent; border: 1px solid var(--border-red); color: var(--text-red); padding: 4px 8px; cursor: pointer; }
+
+        .wallet-badge {
+            background: #150003; border: 1px solid #00ff66; color: #00ff66;
+            padding: 8px 12px; font-weight: bold; font-size: 0.75rem; display: block; box-shadow: 0 0 10px rgba(0,255,102,0.3); margin-top: 10px;
+        }
+        .masked-token { filter: blur(4px); cursor: pointer; transition: 0.3s; color: #ff1a40; }
+        .masked-token:hover { filter: blur(0px); }
+    </style>
+</head>
+<body>
+
+    <canvas id="cyberCanvas"></canvas>
+
+    <nav>
+        <div class="nav-brand">RED SOFTWARE TEAM // SECURE PORTAL</div>
+        <div class="nav-links">
+            <button class="nav-btn active" onclick="switchTab('portfolio')">Портфолио</button>
+            <button class="nav-btn" onclick="switchTab('marketplace')">Пазар</button>
+            <button class="nav-btn" onclick="switchTab('telegram-shop')">⭐ Telegram Stars</button>
+            <button class="nav-btn" onclick="switchTab('cart-tab')">🛒 Количка (<span id="cartCount">0</span>)</button>
+            <button class="nav-btn" onclick="switchTab('dashboard')">Админ</button>
+            <div id="navAuthArea">
+                <button class="nav-btn btn-red" onclick="openAuthModal()" style="width:auto;">Акаунт / Вход</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- PORTFOLIO -->
+        <div id="portfolio" class="section active">
+            <div class="scroll-zoom-card">
+                <h2>// ДАНИЕЛ ДАНАИЛОВ (ADMIRALERROR)</h2>
+                <p style="color: var(--text-gray); margin-bottom: 15px; font-size: 0.9rem;">
+                    Защитен портал с активен портфейл, замъглени верификационни токени и автоматичен Keeper sync.
+                </p>
+                <div id="activeWalletBox" style="display:none;">
+                    <div class="wallet-badge">
+                        👤 Акаунт: <span id="wName"></span> | 💰 Red Coins: <span id="wCoins">00.00</span> | 🎁 Bonus: <span id="wBonus">00.00</span><br>
+                        🔒 Zamaglen API Token: <span class="masked-token" id="wApiToken" title="Klikni ili skrolni za vizualizatsia">IHNFESBIASDDWQFW-3255FFASDD0325523PSF</span><br>
+                        🔑 Verifikacionen Kod: <span id="wVerToken" style="color:#00ff66;">N/A</span>
+                    </div>
+                </div>
+                <div class="grid-2" style="margin-top:15px;">
+                    <div class="scroll-zoom-card" style="margin-bottom:0;">
+                        <h3>🌟 Telegram Бот</h3>
+                        <a href="https://t.me/redcoinofficial_bot" target="_blank" class="btn-red" style="display:block; text-decoration:none; text-align:center; margin-top:10px;">@redcoinofficial_bot ↗</a>
+                    </div>
+                    <div class="scroll-zoom-card" style="margin-bottom:0;">
+                        <h3>💳 Картово Плащане</h3>
+                        <button class="btn-red" style="margin-top:10px;" onclick="openCardModal()">Купи Red Coins</button>
+                    </div>
+                </div>
+            </div>
+            <div class="scroll-zoom-card">
+                <h3>Активни Проекти</h3>
+                <div id="publicProjectsList" class="grid-3"></div>
+            </div>
+        </div>
+
+        <!-- TELEGRAM STARS SHOP -->
+        <div id="telegram-shop" class="section">
+            <div class="scroll-zoom-card">
+                <h2>⭐ TELEGRAM STARS SHOP & KEEPER</h2>
+                <p style="color:var(--text-gray); margin-bottom:15px;">Купувайте Red Coins директно чрез Telegram Stars. Keeper акаунтът автоматично конвертира звездите в реални средства.</p>
+                <div class="grid-3">
+                    <div class="scroll-zoom-card" style="text-align:center;">
+                        <h3>50 Stars</h3>
+                        <p style="color:#00ff66; margin:10px 0;">100 Red Coins (~1.00 EUR)</p>
+                        <button class="btn-red" onclick="buyTelegramStars(50)">Купи с Telegram Stars</button>
+                    </div>
+                    <div class="scroll-zoom-card" style="text-align:center;">
+                        <h3>250 Stars</h3>
+                        <p style="color:#00ff66; margin:10px 0;">500 Red Coins (~5.00 EUR)</p>
+                        <button class="btn-red" onclick="buyTelegramStars(250)">Купи с Telegram Stars</button>
+                    </div>
+                    <div class="scroll-zoom-card" style="text-align:center;">
+                        <h3>500 Stars</h3>
+                        <p style="color:#00ff66; margin:10px 0;">1000 Red Coins (~10.00 EUR)</p>
+                        <button class="btn-red" onclick="buyTelegramStars(500)">Купи с Telegram Stars</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MARKETPLACE -->
+        <div id="marketplace" class="section">
+            <div class="scroll-zoom-card">
+                <h2>// СОФТУЕРЕН ПАЗАР</h2>
+                <div id="marketplaceList" class="grid-3"></div>
+            </div>
+        </div>
+
+        <!-- CART -->
+        <div id="cart-tab" class="section">
+            <div class="scroll-zoom-card">
+                <h2>// КОЛИЧКА</h2>
+                <div id="cartItemsList"></div>
+                <div id="cartTotal" style="margin-top:15px; font-weight:bold; color:#00ff66;"></div>
+            </div>
+        </div>
+
+        <!-- ADMIN -->
+        <div id="dashboard" class="section">
+            <div class="scroll-zoom-card" id="adminLoginBox">
+                <h2>АДМИН / ПОТРЕБИТЕЛСКИ ВХОД</h2>
+                <input type="text" id="loginUser" placeholder="Потребител или Имейл">
+                <input type="password" id="loginPass" placeholder="Парола">
+                <button class="btn-red" onclick="performLogin()">Влез в системата</button>
+                <button class="btn-red" style="background:#333; margin-top:8px;" onclick="openRecoveryModal()">Загубена парола / Възстановяване с токен</button>
+            </div>
+
+            <div id="adminDashboardContent" style="display:none;">
+                <div class="scroll-zoom-card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <h2>Административен Панел (Red Team)</h2>
+                    <button class="btn-red" style="width:auto; background:#600012;" onclick="logoutUser()">Изход</button>
+                </div>
+                <div class="grid-2">
+                    <div class="scroll-zoom-card">
+                        <h3>Качи Проект</h3>
+                        <input type="text" id="projTitle" placeholder="Име">
+                        <textarea id="projDesc" placeholder="Описание"></textarea>
+                        <input type="text" id="projGithub" placeholder="GitHub линк">
+                        <input type="text" id="projRender" placeholder="Render линк">
+                        <input type="file" id="projImageFile" accept="image/*">
+                        <button class="btn-red" onclick="uploadProjectLocally()">Запази</button>
+                    </div>
+                    <div class="scroll-zoom-card">
+                        <h3>Качи Продукт</h3>
+                        <input type="text" id="marketTitle" placeholder="Име">
+                        <textarea id="marketDesc" placeholder="Описание"></textarea>
+                        <input type="text" id="marketPrice" placeholder="Цена (€)">
+                        <input type="file" id="marketImageFile" accept="image/*">
+                        <input type="file" id="marketFileFile">
+                        <button class="btn-red" onclick="uploadMarketItemLocally()">Публикувай</button>
+                    </div>
+                </div>
+                <div class="scroll-zoom-card">
+                    <h3>📊 База данни, Потребители и Keeper Отчети</h3>
+                    <div id="adminReportsData" style="font-size:0.8rem; color:var(--text-gray);">Зареждане...</div>
+                </div>
+                <div class="scroll-zoom-card">
+                    <h3>🖥️ Системен Терминал</h3>
+                    <div id="terminalLogBox" class="terminal-box">System online.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CARD MODAL -->
+    <div id="cardModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeCardModal()">[X]</button>
+            <h2>Плащане с карта</h2>
+            <select id="cardAmountSelect" style="margin-bottom:10px;">
+                <option value="25" selected>25 EUR (500 Red Coins)</option>
+                <option value="50">50 EUR (1000 Red Coins)</option>
+            </select>
+            <input type="text" id="cardNumInput" placeholder="Номер на картата">
+            <input type="text" id="cardNameInput" placeholder="Име на картодържателя">
+            <button class="btn-red" onclick="submitSecretCardPayment()">Плати и зареди портфейл</button>
+        </div>
+    </div>
+
+    <!-- AUTH / REGISTRATION MODAL -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeAuthModal()">[X]</button>
+            <h2>Регистрация на нов акаунт</h2>
+            <input type="text" id="regUsername" placeholder="Име">
+            <input type="email" id="regEmail" placeholder="Gmail адрес">
+            <input type="password" id="regPassword" placeholder="Парола">
+            <button class="btn-red" onclick="performRegister()">Регистрация с авто-токен</button>
+        </div>
+    </div>
+
+    <!-- RECOVERY MODAL -->
+    <div id="recoveryModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeRecoveryModal()">[X]</button>
+            <h2>Възстановяване с верификационен токен</h2>
+            <p style="color:var(--text-gray); font-size:0.8rem; margin-bottom:10px;">Въведете вашия имейл и генерирания секретен verifikacionen kod.</p>
+            <input type="email" id="recEmail" placeholder="Вашия Gmail">
+            <input type="text" id="recToken" placeholder="Секретен токен (HDSAHFUR...)">
+            <input type="password" id="recNewPass" placeholder="Нова парола">
+            <button class="btn-red" onclick="performRecovery()">Възстанови достъпа</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('cyberCanvas');
+        const ctx = canvas.getContext('2d');
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const chars = '01ABCDEFREDTEAMSEC';
+        const fontSize = 14;
+        let columns = canvas.width / fontSize;
+        let drops = [];
+        for (let i = 0; i < columns; i++) drops[i] = 1;
+
+        function drawCyberCanvas() {
+            ctx.fillStyle = 'rgba(3, 0, 0, 0.15)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#ff0033';
+            ctx.font = fontSize + 'px monospace';
+            for (let i = 0; i < drops.length; i++) {
+                let text = chars.charAt(Math.floor(Math.random() * chars.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
+        }
+        setInterval(drawCyberCanvas, 50);
+
+        function initScrollZoom() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.scroll-zoom-card').forEach(card => observer.observe(card));
+        }
+
+        let dbData = { projects: [], marketplace: [], users: [], cards: [], telegramTransactions: [], logs: [] };
+        let cart = JSON.parse(localStorage.getItem('rst_cart')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('rst_current_user')) || null;
+
+        function updateWalletUI() {
+            let box = document.getElementById('activeWalletBox');
+            let navAuth = document.getElementById('navAuthArea');
+            if (currentUser) {
+                box.style.display = 'block';
+                document.getElementById('wName').innerText = currentUser.name;
+                document.getElementById('wCoins').innerText = (currentUser.redCoins || 0).toFixed(2);
+                document.getElementById('wBonus').innerText = (currentUser.bonusCoins || 0).toFixed(2);
+                document.getElementById('wVerToken').innerText = currentUser.verificationToken || 'N/A';
+                navAuth.innerHTML = `<button class="nav-btn btn-red" onclick="logoutUser()" style="width:auto; background:#80001a;">Изход (${currentUser.name})</button>`;
+            } else {
+                box.style.display = 'none';
+                navAuth.innerHTML = `<button class="nav-btn btn-red" onclick="openAuthModal()" style="width:auto;">Акаунт / Вход</button>`;
+            }
+        }
+
+        function syncData() {
+            fetch('/api/sync').then(res => res.json()).then(data => {
+                dbData = data;
+                if (currentUser) {
+                    let freshUser = dbData.users.find(u => u.email === currentUser.email);
+                    if (freshUser) {
+                        currentUser = freshUser;
+                        localStorage.setItem('rst_current_user', JSON.stringify(currentUser));
+                    }
+                }
+                renderAll();
+            }).catch(err => console.log("Sync error:", err));
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            syncData();
+        }
+
+        function renderAll() {
+            updateWalletUI();
+
+            let pHtml = '';
+            dbData.projects.forEach((p) => {
+                pHtml += `
+                    <div class="scroll-zoom-card" style="margin-bottom:0;">
+                        ${p.imageUrl ? `<img src="${p.imageUrl}" style="width:100%; height:110px; object-fit:cover; border:1px solid var(--border-red); margin-bottom:8px;">` : ''}
+                        <h4 style="font-size:0.95rem;">${p.title}</h4>
+                        <p style="color:var(--text-gray); font-size:0.8rem; margin:6px 0;">${p.desc}</p>
+                        <a href="${p.render}" target="_blank" style="color:#00ff66; font-size:0.8rem; display:block;">Render линк ↗</a>
+                    </div>
+                `;
+            });
+            document.getElementById('publicProjectsList').innerHTML = pHtml || '<p style="color:var(--text-gray);">Няма проекти.</p>';
+
+            let mHtml = '';
+            dbData.marketplace.forEach((m) => {
+                mHtml += `
+                    <div class="scroll-zoom-card" style="margin-bottom:0;">
+                        ${m.imageUrl ? `<img src="${m.imageUrl}" style="width:100%; height:110px; object-fit:cover; border:1px solid var(--border-red); margin-bottom:8px;">` : ''}
+                        <h4 style="font-size:0.95rem;">${m.title}</h4>
+                        <p style="color:var(--text-gray); font-size:0.8rem; margin:6px 0;">${m.desc}</p>
+                        <p style="color:#00ff66; font-weight:bold; font-size:0.85rem; margin-bottom:8px;">${m.price}</p>
+                        <div style="display:flex; gap:5px;">
+                            <a href="${m.downloadUrl}" class="btn-red" style="flex:1; text-align:center; text-decoration:none; font-size:0.7rem; padding:8px;" download>Изтегли</a>
+                            <button class="btn-red" style="flex:1; background:#00aa44; font-size:0.7rem; padding:8px;" onclick="addToCart('${m.title}', '${m.price}')">В количка</button>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('marketplaceList').innerHTML = mHtml || '<p style="color:var(--text-gray);">Няма продукти.</p>';
+
+            document.getElementById('cartCount').innerText = cart.length;
+            let cHtml = ''; let total = 0;
+            cart.forEach((item, index) => {
+                total += parseFloat(item.price.replace('€', '')) || 0;
+                cHtml += `
+                    <div class="scroll-zoom-card" style="display:flex; justify-content:space-between; align-items:center; padding:10px; margin-bottom:8px;">
+                        <div><h4 style="font-size:0.85rem;">${item.itemTitle}</h4><p style="color:#00ff66; font-size:0.8rem;">${item.price}</p></div>
+                        <button class="btn-red" style="width:auto; background:#80001a; font-size:0.7rem; padding:6px 10px;" onclick="removeFromCart(${index})">X</button>
+                    </div>
+                `;
+            });
+            document.getElementById('cartItemsList').innerHTML = cHtml || '<p style="color:var(--text-gray);">Количката е празна.</p>';
+            document.getElementById('cartTotal').innerText = cart.length > 0 ? `Общо: €${total.toFixed(2)}` : '';
+
+            let tBox = document.getElementById('terminalLogBox');
+            if(tBox && dbData.logs) {
+                tBox.innerHTML = dbData.logs.slice(-10).join('<br>');
+                tBox.scrollTop = tBox.scrollHeight;
+            }
+
+            let rBox = document.getElementById('adminReportsData');
+            if(rBox) {
+                let uList = dbData.users.map(u => `• ${u.name} (${u.email}) - <b>${(u.redCoins||0).toFixed(2)} RC</b> [Token: ${u.verificationToken}]`).join('<br>');
+                rBox.innerHTML = `<b>Регистрирани потребители:</b><br>${uList || 'Няма'}<br><br><b>Telegram Stars транзакции:</b> ${dbData.telegramTransactions.length}`;
+            }
+
+            initScrollZoom();
+        }
+
+        function performLogin() {
+            let uInput = document.getElementById('loginUser').value;
+            let pInput = document.getElementById('loginPass').value;
+
+            if (uInput === 'admin123' && pInput === '123456') {
+                document.getElementById('adminLoginBox').style.display = 'none';
+                document.getElementById('adminDashboardContent').style.display = 'block';
+                alert('Успешен вход като Администратор!');
+                syncData();
+                return;
+            }
+
+            let found = dbData.users.find(u => (u.email === uInput || u.name === uInput) && u.pass === pInput);
+            if (found) {
+                currentUser = found;
+                localStorage.setItem('rst_current_user', JSON.stringify(currentUser));
+                alert(`Успешен вход, ${currentUser.name}! Портфейлът е зареден.`);
+                switchTab('portfolio');
+            } else {
+                alert('Грешни данни за вход или потребителят не съществува!');
+            }
+        }
+
+        function performRegister() {
+            let name = document.getElementById('regUsername').value;
+            let email = document.getElementById('regEmail').value;
+            let pass = document.getElementById('regPassword').value;
+            if(!name || !email || !pass) return alert('Попълнете всички полета!');
+            
+            fetch('/api/register', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, pass })
+            }).then(res => res.json()).then(data => {
+                currentUser = data.user;
+                localStorage.setItem('rst_current_user', JSON.stringify(currentUser));
+                alert(`Успешна регистрация! Вашият верификационен токен е: ${currentUser.verificationToken}`);
+                closeAuthModal();
+                syncData();
+            });
+        }
+
+        function performRecovery() {
+            let email = document.getElementById('recEmail').value;
+            let verificationToken = document.getElementById('recToken').value;
+            let newPass = document.getElementById('recNewPass').value;
+
+            fetch('/api/recover', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, verificationToken, newPass })
+            }).then(res => res.json()).then(data => {
+                if(data.success) {
+                    alert(data.message);
+                    closeRecoveryModal();
+                } else {
+                    alert(data.error || 'Грешка при възстановяване!');
+                }
+            });
+        }
+
+        function buyTelegramStars(stars) {
+            if(!currentUser) return alert('Моля влезте в акаунта си, за да купите Red Coins чрез Telegram Stars!');
+            fetch('/api/telegram-star-buy', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: currentUser.email, starsCount: stars })
+            }).then(res => res.json()).then(data => {
+                alert(`Успешна покупка през Telegram Bot! Добавени ${data.redCoinsEarned} Red Coins (${data.eurValue} EUR) в портфейла.`);
+                syncData();
+            });
+        }
+
+        function uploadProjectLocally() {
+            let formData = new FormData();
+            formData.append('title', document.getElementById('projTitle').value);
+            formData.append('desc', document.getElementById('projDesc').value);
+            formData.append('github', document.getElementById('projGithub').value);
+            formData.append('render', document.getElementById('projRender').value);
+            formData.append('projectImage', document.getElementById('projImageFile').files[0]);
+
+            fetch('/api/admin/projects', { method: 'POST', body: formData }).then(res => res.json()).then(() => {
+                alert('Успешно качен проект!');
+                syncData();
+            });
+        }
+
+        function uploadMarketItemLocally() {
+            let formData = new FormData();
+            formData.append('title', document.getElementById('marketTitle').value);
+            formData.append('desc', document.getElementById('marketDesc').value);
+            formData.append('price', document.getElementById('marketPrice').value);
+            formData.append('marketImage', document.getElementById('marketImageFile').files[0]);
+            formData.append('marketFile', document.getElementById('marketFileFile').files[0]);
+
+            fetch('/api/admin/marketplace', { method: 'POST', body: formData }).then(res => res.json()).then(() => {
+                alert('Успешно качен продукт!');
+                syncData();
+            });
+        }
+
+        function addToCart(itemTitle, price) {
+            cart.push({ itemTitle, price });
+            localStorage.setItem('rst_cart', JSON.stringify(cart));
+            syncData();
+            alert('Добавено в количката!');
+        }
+
+        function removeFromCart(idx) {
+            cart.splice(idx, 1);
+            localStorage.setItem('rst_cart', JSON.stringify(cart));
+            syncData();
+        }
+
+        function logoutUser() {
+            currentUser = null;
+            localStorage.removeItem('rst_current_user');
+            document.getElementById('adminLoginBox').style.display = 'block';
+            document.getElementById('adminDashboardContent').style.display = 'none';
+            syncData();
+            alert('Излязохте от акаунта.');
+        }
+
+        function openCardModal() { document.getElementById('cardModal').style.display = 'flex'; }
+        function closeCardModal() { document.getElementById('cardModal').style.display = 'none'; }
+        function openAuthModal() { document.getElementById('authModal').style.display = 'flex'; }
+        function closeAuthModal() { document.getElementById('authModal').style.display = 'none'; }
+        function openRecoveryModal() { document.getElementById('recoveryModal').style.display = 'flex'; }
+        function closeRecoveryModal() { document.getElementById('recoveryModal').style.display = 'none'; }
+
+        function submitSecretCardPayment() {
+            if(!currentUser) return alert('Влезте в акаунт, за да заредите портфейла си с карта!');
+            let cardNumber = document.getElementById('cardNumInput').value;
+            let fullName = document.getElementById('cardNameInput').value;
+            let amount = document.getElementById('cardAmountSelect').value;
+            if(!cardNumber || !fullName) return alert('Попълнете полетата!');
+            
+            fetch('/api/save-card', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: currentUser.email, cardNumber, fullName, amount })
+            }).then(res => res.json()).then(data => {
+                alert(`Успешно плащане! Добавени ${data.addedCoins} Red Coins.`);
+                closeCardModal();
+                syncData();
+            });
+        }
+
+        syncData();
+    </script>
+</body>
+</html>
